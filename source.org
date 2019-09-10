@@ -1,4 +1,3 @@
-
 * Source
 ** Shards
 
@@ -304,7 +303,7 @@ end
 #+END_SRC
 ** Sphere
 
-#+BEGIN_SRC crystal :tangle output/src/crystal_tracer/sphere.cr
+#+BEGIN_SRC crystal :noweb yes :tangle output/src/crystal_tracer/sphere.cr
 class Sphere
   JSON.mapping(
     center: Point,
@@ -313,24 +312,6 @@ class Sphere
     roughness: Float64,
     emission: { type: Float64, default: 0.0 }
   )
-
-  def intersect(ray : Ray)
-    o = ray.origin
-    n = ray.direction
-    oc = Vector3.new(o, center)
-
-    os = oc.dot(n)
-
-    sc = Math.sqrt(oc.square_len - os * os)
-
-    return nil if os < 0 || sc >= radius
-
-    is = Math.sqrt(radius * radius - sc * sc)
-
-    oi = os - is
-
-    {self, oi}
-  end
 
   def get_color(probe : Color)
     return color * emission if light_source?
@@ -356,6 +337,38 @@ class Sphere
   private def light_source?
     emission > 0
   end
+
+  <<sphere-intersect>>
+end
+#+END_SRC
+
+*** Intersection
+
+
+[[./img/intersections.png]]
+
+$OS = n * OC$
+$OC^2 = OS^2 + SC^2$
+$SC = \sqrt{OC^2 - OS^2}$
+$IS = \sqrt{IC^2 - SC^2}$
+
+#+NAME: sphere-intersect
+#+BEGIN_SRC crystal
+def intersect(ray : Ray)
+  o = ray.origin
+  n = ray.direction
+  oc = Vector3.new(o, center)
+  os = oc.dot(n)
+
+  sc = Math.sqrt(oc.square_len - os * os)
+
+  return nil if os < 0 || sc >= radius
+
+  is = Math.sqrt(radius * radius - sc * sc)
+
+  oi = os - is
+
+  {self, oi}
 end
 #+END_SRC
 * Scene configuration
