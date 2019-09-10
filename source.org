@@ -1,8 +1,37 @@
-* Crystal_tracer
+
+* Source
+** Shards
+
+#+BEGIN_SRC yaml :noweb yes :tangle output/shard.yml
+name: crystal_tracer
+version: 0.1.0
+
+authors:
+  - Stepan Khodzhaian <stepan.khodzhaian@carwow.co.uk>
+
+targets:
+  crystal_tracer:
+    main: src/crystal_tracer.cr
+
+crystal: 0.29.0
+license: MIT
+
+dependencies:
+  <<shards-dependencies>>
+#+END_SRC
+
+*** Dependencies
+
+#+NAME: shards-dependencies
+#+BEGIN_SRC yaml
+stumpy_png:
+  github: stumpycr/stumpy_png
+  version: "~> 4.4.1"
+#+END_SRC
 
 ** Entrypoint
 
-#+BEGIN_SRC crystal :noweb yes :tangle output/main.cr
+#+BEGIN_SRC crystal :noweb yes :tangle output/src/crystal_tracer.cr
 require "json"
 require "stumpy_png"
 
@@ -39,7 +68,7 @@ end
 ** Basic datastructure - Vector3
 
 #+NAME: vector3
-#+BEGIN_SRC crystal :tangle output/crystal_tracer/vector3.cr
+#+BEGIN_SRC crystal :tangle output/src/crystal_tracer/vector3.cr
 require "stumpy_core"
 include StumpyCore
 
@@ -143,9 +172,9 @@ struct Vector3
 end
 #+END_SRC
 
-** Ray implementation
+** Ray
 
-#+BEGIN_SRC crystal :tangle output/crystal_tracer/ray.cr
+#+BEGIN_SRC crystal :tangle output/src/crystal_tracer/ray.cr
 class Ray
   getter :origin, :direction
 
@@ -161,7 +190,7 @@ end
 #+END_SRC
 ** Scene
 
-#+BEGIN_SRC crystal :tangle output/crystal_tracer/scene.cr
+#+BEGIN_SRC crystal :tangle output/src/crystal_tracer/scene.cr
 class Scene
   JSON.mapping(
     width: Int32,
@@ -206,7 +235,7 @@ end
 
 ** Renderer
 
-#+BEGIN_SRC crystal :tangle output/crystal_tracer/renderer.cr
+#+BEGIN_SRC crystal :tangle output/src/crystal_tracer/renderer.cr
 class Renderer
   private getter :scene, :canvas, :camera
 
@@ -238,7 +267,7 @@ end
 #+END_SRC
 ** Camera
 
-#+BEGIN_SRC crystal :tangle output/crystal_tracer/camera.cr
+#+BEGIN_SRC crystal :tangle output/src/crystal_tracer/camera.cr
 class Camera
   private getter :screen_width, :screen_height
 
@@ -275,7 +304,7 @@ end
 #+END_SRC
 ** Sphere
 
-#+BEGIN_SRC crystal :tangle output/crystal_tracer/sphere.cr
+#+BEGIN_SRC crystal :tangle output/src/crystal_tracer/sphere.cr
 class Sphere
   JSON.mapping(
     center: Point,
@@ -328,4 +357,37 @@ class Sphere
     emission > 0
   end
 end
+#+END_SRC
+* Scene configuration
+
+#+BEGIN_SRC js :tangle output/scene.json
+{
+  "width": 800,
+  "height": 600,
+  "samples": 100,
+  "ray_bounces": 15,
+  "bg_start": [1, 1, 1],
+  "bg_end" : [0.5, 0.7, 1.0],
+  "geometry": [
+    {
+      "center": [0, 12.5, -4],
+      "radius": 8.1,
+      "color": [1, 1, 1],
+      "emission": 10.0,
+      "roughness": 1
+    },
+    {
+      "center": [-0.8, -0.5, -4],
+      "radius": 1,
+      "color": [0.78, 0.6, 0.78],
+      "roughness": 1
+    },
+    {
+      "center": [1, -1, -2.5],
+      "radius": 0.5,
+      "color": [0.8, 0.49, 0.19],
+      "roughness": 0
+    }
+  ]
+}
 #+END_SRC
