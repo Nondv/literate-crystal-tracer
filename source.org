@@ -64,10 +64,10 @@ module CrystalTracer
 end
 #+END_SRC
 
-** Basic datastructure - Vector3
+** Basic datastructure - 3D vector
 
 #+NAME: vector3
-#+BEGIN_SRC crystal :tangle output/src/crystal_tracer/vector3.cr
+#+BEGIN_SRC crystal :noweb yes :tangle output/src/crystal_tracer/vector3.cr
 require "stumpy_core"
 include StumpyCore
 
@@ -85,10 +85,6 @@ struct Vector3
       2.0 * Random.rand - 1,
       2.0 * Random.rand - 1
     ).normalize
-  end
-
-  def self.lerp(s : Vector3, e : Vector3, t : Float64)
-    s + (e - s) * t
   end
 
   def initialize(a : Float64, b : Float64, c : Float64)
@@ -110,64 +106,130 @@ struct Vector3
     @data[i]
   end
 
-  def *(v : Vector3)
-    Vector3.new(self[0] * v[0], self[1] * v[1], self[2] * v[2])
-  end
-
-  def *(value : Float64)
-    Vector3.new(self[0] * value, self[1] * value, self[2] * value)
-  end
-
-  def /(v : Vector3)
-    Vector3.new(self[0] / v[0], self[1] / v[1], self[2] / v[2])
-  end
-
-  def /(value : Float64)
-    Vector3.new(self[0] / value, self[1] / value, self[2] / value)
-  end
-
-  def +(v : Vector3)
-    Vector3.new(self[0] + v[0], self[1] + v[1], self[2] + v[2])
-  end
-
-  def -(v : Vector3)
-    Vector3.new(self[0] - v[0], self[1] - v[1], self[2] - v[2])
-  end
-
-  def clamp
-    Vector3.new(
-      Math.min(self[0], 1.0),
-      Math.min(self[1], 1.0),
-      Math.min(self[2], 1.0),
-    )
-  end
-
-  def normalize
-    self * (1 / len)
-  end
-
-  def len
-    Math.sqrt(square_len)
-  end
-
-  def dot(v : Vector3)
-    self[0] * v[0] + self[1] * v[1] + self[2] * v[2]
-  end
-
-  def square_len
-    self[0] * self[0] + self[1] * self[1] + self[2] * self[2]
-  end
-
   def to_rgba
     v = self * 255
     RGBA.from_rgb_n(v[0].to_i, v[1].to_i, v[2].to_i, 8)
   end
 
-  def reflect(normal : Vector3)
-    # r = d - 2(d . n) * n
+  <<vector3-algebra>>
 
-    self - normal * (2 * self.dot(normal))
-  end
+  <<vector3-normalization>>
+
+  <<vector3-reflect>>
+
+  <<vector3-lerp>>
+
+  <<vector3-clamp>>
+end
+#+END_SRC
+
+*** Basic algebraic operations
+In [[https://en.wikipedia.org/wiki/Linear_algebra][linear algebra]] vectors have an addition operation (naturally, substraction),
+a multiplication/division by a number and a multiplication/divison by another
+vector.
+
+Additionally, there's a $\cdot$ (dot) operation for multiplication
+between elements of vectors:
+
+$[a, b, c] \cdot [d, e, f] = [a * d, b * e, c * f]$
+
+#+NAME: vector3-algebra
+#+BEGIN_SRC crystal
+def +(v : Vector3)
+  Vector3.new(self[0] + v[0], self[1] + v[1], self[2] + v[2])
+end
+
+def -(v : Vector3)
+  Vector3.new(self[0] - v[0], self[1] - v[1], self[2] - v[2])
+end
+
+def *(v : Vector3)
+  Vector3.new(self[0] * v[0], self[1] * v[1], self[2] * v[2])
+end
+
+def *(value : Float64)
+  Vector3.new(self[0] * value, self[1] * value, self[2] * value)
+end
+
+def /(v : Vector3)
+  Vector3.new(self[0] / v[0], self[1] / v[1], self[2] / v[2])
+end
+
+def /(value : Float64)
+  Vector3.new(self[0] / value, self[1] / value, self[2] / value)
+end
+
+def dot(v : Vector3)
+  self[0] * v[0] + self[1] * v[1] + self[2] * v[2]
+end
+#+END_SRC
+
+*** Normalization
+
+Normalization is converting a vector to a collinear one with length = 1.
+In order to achieve that, it's enough to calculate vector's length using
+[[https://en.wikipedia.org/wiki/Pythagorean_theorem][pythagorean theorem]] and divide the vector by its length.
+
+#+NAME: vector3-normalization
+#+BEGIN_SRC crystal
+def normalize
+  self * (1 / len)
+end
+
+def len
+  Math.sqrt(square_len)
+end
+
+def square_len
+  self[0] * self[0] + self[1] * self[1] + self[2] * self[2]
+end
+#+END_SRC
+
+*** Reflection
+
+
+[[./img/reflection.png]]
+
+
+
+$r = d - 2(d \cdot n) * n$
+
+#+NAME: vector3-reflect
+#+BEGIN_SRC crystal
+def reflect(normal : Vector3)
+  # r = d - 2(d . n) * n
+  self - normal * (2 * self.dot(normal))
+end
+#+END_SRC
+*** lerp - linear interpolation function
+
+TODO: add explanation.
+
+[[https://en.wikipedia.org/wiki/Linear_interpolation][wikipedia]]
+
+#+NAME: vector3-lerp
+#+BEGIN_SRC crystal
+def self.lerp(s : Vector3, e : Vector3, t : Float64)
+  s + (e - s) * t
+end
+#+END_SRC
+*** clamp
+
+Clamping - moving a point to a nearest position in an available area.
+The area is a 1x1x1 cube.
+
+[[https://en.wikipedia.org/wiki/Clamping_(graphics)][wiki]]
+
+TODO: add an explanation why this cube is important.
+
+#+NAME: vector3-clamp
+#+BEGIN_SRC crystal
+def clamp
+  Vector3.new(
+    Math.min(self[0], 1.0),
+    Math.min(self[1], 1.0),
+    Math.min(self[2], 1.0),
+  )
 end
 #+END_SRC
 
