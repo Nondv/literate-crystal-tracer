@@ -131,7 +131,7 @@ vector.
 Additionally, there's a $\cdot$ (dot) operation for multiplication
 between elements of vectors:
 
-$[a, b, c] \cdot [d, e, f] = [a * d, b * e, c * f]$
+$[a, b, c] \cdot [d, e, f] = a * d + b * e + c * f$
 
 #+NAME: vector3-algebra
 #+BEGIN_SRC crystal
