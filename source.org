@@ -409,10 +409,10 @@ end
 
 [[./img/intersections.png]]
 
-$OS = n * OC$
-$OC^2 = OS^2 + SC^2$
-$SC = \sqrt{OC^2 - OS^2}$
-$IS = \sqrt{IC^2 - SC^2}$
+- $OS = n * OC$
+- $OC^2 = OS^2 + SC^2$
+- $SC = \sqrt{OC^2 - OS^2}$
+- $IS = \sqrt{IC^2 - SC^2}$
 
 #+NAME: sphere-intersect
 #+BEGIN_SRC crystal
